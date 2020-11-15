@@ -1,0 +1,234 @@
+﻿@using DiamondDealer.Objects
+
+<div class="board-container" @ref="MyBorad" tabindex="0" @onkeydown="KeyDown">
+    @if (Board is not null)
+        @for (int i = 0; i < RowsLength; i++)
+            for (int j = 0; j < ColumnsLength; j++)
+            {
+                <div class="board-spot">
+                    <!--Factory-->
+
+
+                    @switch (Board[i, j].SpotTypes)
+                    {
+                        case SpotTypes.CrystalMine or SpotTypes.Factory:
+                            var site = Board[i, j].CustomeCast(Board[i, j].SpotTypes);
+                            <img class="spot-img-dealer" src="@(site.Image)" />
+                            if (site.IsCurrentPostion)
+                            {
+                                <img class="spot-img-dealer" src="@(site.ImageDealer)" />
+                            }
+                            break;
+
+                        case SpotTypes.Dealer:
+                            <img class="spot-img-dealer" src="@(Board[i,j].Cast<Dealer>().Image)" />
+                            break;
+
+                        case SpotTypes.Spot:
+                            break;
+
+                        default: break;
+                    }
+
+
+
+
+                </div>
+            }
+
+
+</div>
+@code {
+    [Parameter]
+    public int RowsLength { get; set; }
+    [Parameter]
+    public int ColumnsLength { get; set; }
+
+    /// <summary>
+    /// bool: at postion ,  string: url png , object: { kind: of object , what: is  , functions: helper}
+    /// </summary>
+    Spot[,] Board;
+
+    protected ElementReference MyBorad;
+
+    (int X, int Y) CurrentPostion;
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        Board = new Spot[RowsLength, ColumnsLength].InitializeArray();
+
+        CurrentPostion = (RowsLength - 1, ColumnsLength / 2);
+
+        var initDealer = Board[CurrentPostion.X, CurrentPostion.Y];
+        initDealer.SpotTypes = SpotTypes.Dealer;
+        initDealer.Content = new Dealer()
+        {
+            Image = DealerImages.Top.GetUrlImage(),
+            IsCurrentPostion = true,
+        };
+
+        var initCrystalMine = Board[4, 0];
+        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
+        initCrystalMine.Content = new CrystalMine()
+        {
+            Image = "/image/crystalmine1.png",
+        };
+
+
+        initCrystalMine = Board[2, 0];
+        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
+        initCrystalMine.Content = new CrystalMine()
+        {
+            Image = "/image/crystalmine1.png",
+        };
+
+
+        initCrystalMine = Board[3, 0];
+        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
+        initCrystalMine.Content = new CrystalMine()
+        {
+            Image = "/image/crystalmine2.png",
+        };
+
+
+        initCrystalMine = Board[3, 4];
+        initCrystalMine.SpotTypes = SpotTypes.Factory;
+        initCrystalMine.Content = new Factory()
+        {
+            Image = "/image/factory.png",
+        };
+
+        return base.OnParametersSetAsync();
+    }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await MyBorad.FocusAsync();
+            //  await JSRuntime.InvokeVoidAsync("SetFocusToElement", myDiv);
+        }
+    }
+
+    private void KeyDown(KeyboardEventArgs e)
+    {
+        var CurrentPostionOld = CurrentPostion;
+        Spot siteOld = Board[CurrentPostion.X, CurrentPostion.Y];
+
+        CurrentPostion = e.Key switch
+        {
+            ("w" or "ص") when CurrentPostion.X != 0 => (--CurrentPostion.X, CurrentPostion.Y),
+            ("s" or "س") when CurrentPostion.X != RowsLength-1 => (++CurrentPostion.X, CurrentPostion.Y),
+            ("a" or "ش") when CurrentPostion.Y != 0 => (CurrentPostion.X, --CurrentPostion.Y),
+            ("d" or "ي") when CurrentPostion.Y != ColumnsLength-1 => (CurrentPostion.X, ++CurrentPostion.Y),
+            " " or _ => (CurrentPostion.X, CurrentPostion.Y)
+        };
+
+        if (CurrentPostionOld == CurrentPostion)
+            return;
+
+        Spot siteNew = Board[CurrentPostion.X, CurrentPostion.Y];
+
+
+        switch(siteNew.SpotTypes)
+        {
+            case SpotTypes.Spot:
+
+                switch (siteOld.SpotTypes) {
+
+                    case SpotTypes.Dealer:
+                        var dealer = siteOld.Cast<Dealer>();
+
+                        siteNew.SpotTypes = SpotTypes.Dealer;
+                        siteNew.Content = new Dealer()
+                        {
+                            Image = ExtensionMethods.GetUrlDealer(e.Key, dealer.Image),
+                            Item=dealer.Item,
+                            IsCurrentPostion = true,
+                        };
+
+                        siteOld.Content = default;
+                        siteOld.SpotTypes= SpotTypes.Spot;
+
+                        break;
+
+                    case SpotTypes.CrystalMine or SpotTypes.Factory:
+
+                        var crystalMine = siteOld.Cast<Dealer>();
+
+                        siteNew.SpotTypes = SpotTypes.Dealer;
+                        siteNew.Content = new Dealer()
+                        {
+                            Image = ExtensionMethods.GetUrlDealer(e.Key, crystalMine.Image),
+                            Item = crystalMine.Item,
+                            IsCurrentPostion = true,
+                        };
+
+                        crystalMine.IsCurrentPostion = false;
+                        crystalMine.Image = default(string);
+                        crystalMine.Item = default(Item);
+
+                        break;
+
+                    default:
+                        break;
+                }
+
+                break;
+
+            case SpotTypes.CrystalMine or SpotTypes.Factory:
+
+                switch (siteOld.SpotTypes)
+                {
+                    case SpotTypes.Dealer:
+                        var crystalMine= siteNew.Cast<Dealer>();
+                        var dealer = siteOld.Cast<Dealer>();
+
+                        crystalMine.Image=ExtensionMethods.GetUrlDealer(e.Key, dealer.Image);
+
+                        crystalMine.Item = dealer.Item;
+                        crystalMine.IsCurrentPostion = true;
+
+                        siteOld.SpotTypes = SpotTypes.Spot;
+                        siteOld.Content = default;
+
+                        break;
+
+
+                    case SpotTypes.CrystalMine or SpotTypes.Factory:
+
+                        var crystalMineNew = siteNew.Cast<Dealer>();
+                        var crystalMineOld = siteOld.Cast<Dealer>();
+
+
+                        crystalMineNew.Image =ExtensionMethods.GetUrlDealer(e.Key, crystalMineOld.Image);
+                        crystalMineNew.Item = crystalMineOld.Item;
+                        crystalMineNew.IsCurrentPostion = true;
+
+
+                        crystalMineOld.Item = default(Item);
+                        crystalMineOld.Image = default;
+                        crystalMineOld.IsCurrentPostion = false;
+
+
+                        break;
+
+                    default:
+                        break;
+                }
+
+                break;
+
+            default:
+                break;
+        }
+
+
+        Console.WriteLine($"Pressed: [{e.Key}]  Postion: [{CurrentPostion.ToString()}] ");
+    }
+
+}

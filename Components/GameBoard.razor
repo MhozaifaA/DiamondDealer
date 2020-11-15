@@ -1,0 +1,90 @@
+﻿@using DiamondDealer.Objects
+
+<div class="board-container" @ref="MyBorad" tabindex="0" @onkeydown="KeyDown">
+    @if (Board is not null)
+        @for (int i = 0; i < RowsLength; i++)
+            for (int j = 0; j < ColumsLength; j++)
+            {
+                <div class="board-spot">
+                    <!--Factory-->
+
+                    <!--Object-->
+
+                    <!--dealer-->
+                    @if (Board[i, j].IsCurrentPostion)
+                    {
+                        <img class="spot-img-dealer" src="@Board[i,j].UrlImage" />
+                    }
+                </div>
+            }
+
+
+</div>
+@code {
+    [Parameter]
+    public int RowsLength { get; set; }
+    [Parameter]
+    public int ColumsLength { get; set; }
+
+    /// <summary>
+    /// bool: at postion ,  string: url png , object: { kind: of object , what: is  , functions: helper}
+    /// </summary>
+    Spot[,] Board;
+
+    protected ElementReference MyBorad;
+
+    (int X, int Y) CurrentPostion;
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        Board = new Spot[RowsLength, ColumsLength].InitializeArray();
+
+        CurrentPostion = (RowsLength - 1, ColumsLength / 2);
+        Board[CurrentPostion.X, CurrentPostion.Y].IsCurrentPostion = true;
+        Board[CurrentPostion.X, CurrentPostion.Y].UrlImage = DealerImages.Top.GetUrlImage();
+
+        return base.OnParametersSetAsync();
+    }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await MyBorad.FocusAsync();
+            //  await JSRuntime.InvokeVoidAsync("SetFocusToElement", myDiv);
+        }
+    }
+
+    protected void KeyDown(KeyboardEventArgs e)
+    {
+        Board[CurrentPostion.X, CurrentPostion.Y].IsCurrentPostion = false;
+
+        CurrentPostion = e.Key switch
+        {
+            "w" when CurrentPostion.X != 0 => (--CurrentPostion.X, CurrentPostion.Y),
+            "s" when CurrentPostion.X != 6 => (++CurrentPostion.X, CurrentPostion.Y),
+            "a" when CurrentPostion.Y != 0 => (CurrentPostion.X, --CurrentPostion.Y),
+            "d" when CurrentPostion.Y != 4 => (CurrentPostion.X, ++CurrentPostion.Y),
+            " " or _ => (CurrentPostion.X, CurrentPostion.Y)
+        };
+
+        Board[CurrentPostion.X, CurrentPostion.Y].UrlImage = e.Key switch
+        {
+            "w" => DealerImages.Top.GetUrlImage(),
+            "s" => DealerImages.Down.GetUrlImage(),
+            "a" => DealerImages.Left.GetUrlImage(),
+            "d" => DealerImages.Right.GetUrlImage(),
+            " " or _ => Board[CurrentPostion.X, CurrentPostion.Y].UrlImage
+        };
+
+
+        Board[CurrentPostion.X, CurrentPostion.Y].IsCurrentPostion = true;
+
+        Console.WriteLine($"Pressed: [{e.Key}]  Postion: [{CurrentPostion.ToString()}] ");
+    }
+
+}

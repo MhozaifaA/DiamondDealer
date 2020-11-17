@@ -5,50 +5,59 @@
         @for (int i = 0; i < RowsLength; i++)
             for (int j = 0; j < ColumnsLength; j++)
             {
-    <div class="board-spot">
-        <!--Factory-->
+                <div class="board-spot">
+                    <!--Factory-->
 
 
-        @switch (Board[i, j].SpotTypes)
-        {
-            case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
-                var site = Board[i, j].CustomeCast(Board[i, j].SpotTypes);
-                <img class="spot-img-dealer" src="@(site.Image)" />
-
-                if (site.IsItem)
-                {
-                    <img class="spot-img-dealer" src="@(site.Item.Image)" />
-                }
-
-                if (site.IsCurrentPostion)
-                {
-                    if (site.IsItemDealer)
+                    @switch (Board[i, j].SpotTypes)
                     {
-                        <img class="spot-img-dealer" src="@(site.ItemDealer.Image)" />
+                        case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
+                            var site = Board[i, j].CustomeCast(Board[i, j].SpotTypes);
+                            <img class="spot-img-dealer" src="@(site.Image)" />
+
+                            if (Board[i, j].SpotTypes == SpotTypes.Factory)
+                            {
+                                var fac = (Factory)site;
+                                foreach (var item in fac.InItems.OrderBy(x => x.ModelImages))
+                                {
+                                    <img class="spot-img-dealer" src="@(item.Image)" />
+                                }
+                            }
+
+                            if (site.IsItem)
+                            {
+                                <img class="spot-img-dealer" src="@(site.Item.Image)" />
+                            }
+
+                            if (site.IsCurrentPostion)
+                            {
+                                if (site.IsItemDealer)
+                                {
+                                    <img class="spot-img-dealer" src="@(site.ItemDealer.Image)" />
+                                }
+                                <img class="spot-img-dealer" src="@(site.ImageDealer)" />
+                            }
+                            break;
+
+                        case SpotTypes.Dealer:
+                            var dealer = Board[i, j].Cast<Dealer>();
+                            if (dealer.IsItem)
+                            {
+                                <img class="spot-img-dealer" src="@(dealer.Item.Image)" />
+                            }
+                            <img class="spot-img-dealer" src="@(dealer.Image)" />
+                            break;
+
+                        case SpotTypes.Spot:
+                            break;
+
+                        default: break;
                     }
-                    <img class="spot-img-dealer" src="@(site.ImageDealer)" />
-                }
-                break;
-
-            case SpotTypes.Dealer:
-                var dealer = Board[i, j].Cast<Dealer>();
-                if (dealer.IsItem)
-                {
-                    <img class="spot-img-dealer" src="@(dealer.Item.Image)" />
-                }
-                <img class="spot-img-dealer" src="@(dealer.Image)" />
-                break;
-
-            case SpotTypes.Spot:
-                break;
-
-            default: break;
-        }
 
 
 
 
-    </div>
+                </div>
             }
 
 
@@ -75,8 +84,7 @@
         Board = new Spot[RowsLength, ColumnsLength].InitializeArray();
 
         CurrentPostion = (RowsLength - 1, ColumnsLength / 2);
-
-        DiamondDealer.Objects.Board.Initialize(ref Board);
+        DiamondDealer.Objects.Board.Initialize(ref Board, () => { StateHasChanged(); });
 
         return base.OnParametersSetAsync();
     }
@@ -96,21 +104,30 @@
 
         if (e.Key == " " && siteOld.SpotTypes == SpotTypes.CrystalMine)
         {
-            var _Crystal= siteOld.Cast<CrystalMine>();
-            if ( _Crystal.IsItem && !_Crystal.IsItemDealer)
+            var _Crystal = siteOld.Cast<CrystalMine>();
+            if (_Crystal.IsItem && !_Crystal.IsItemDealer)
             {
                 _Crystal.ItemDealer = _Crystal.Item;
                 _Crystal.Item = default;
+                _Crystal.Work();
             }
         }
+
 
         if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Factory)
         {
             var _Crystal = siteOld.Cast<Factory>();
-            if (!_Crystal.IsItem && _Crystal.IsItemDealer)
+            if (_Crystal.IsItemDealer && !_Crystal.IsItem)
             {
-                _Crystal.Item = _Crystal.ItemDealer;
-                _Crystal.ItemDealer = default;
+                if (_Crystal.TryAddToItems(_Crystal.ItemDealer))
+                {
+                    _Crystal.ItemDealer = default;
+                }
+            }
+            else if (!_Crystal.IsItemDealer && _Crystal.IsItem)
+            {
+                _Crystal.ItemDealer = _Crystal.Item;
+                _Crystal.Item = default;
             }
         }
 
@@ -118,11 +135,12 @@
         if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Storage)
         {
             var _Crystal = siteOld.Cast<Storage>();
-            if ( _Crystal.IsItemDealer)
+            if (_Crystal.IsItemDealer)
             {
                 _Crystal.Items.Add(_Crystal.ItemDealer);
                 _Crystal.ItemDealer = default;
-            }else if(_Crystal.IsItem)
+            }
+            else if (_Crystal.IsItem)
             {
                 _Crystal.ItemDealer = _Crystal.Items.Dequeue();
             }
@@ -133,9 +151,9 @@
         CurrentPostion = e.Key switch
         {
             ("w" or "ص") when CurrentPostion.X != 0 => (--CurrentPostion.X, CurrentPostion.Y),
-            ("s" or "س") when CurrentPostion.X != RowsLength-1 => (++CurrentPostion.X, CurrentPostion.Y),
+            ("s" or "س") when CurrentPostion.X != RowsLength - 1 => (++CurrentPostion.X, CurrentPostion.Y),
             ("a" or "ش") when CurrentPostion.Y != 0 => (CurrentPostion.X, --CurrentPostion.Y),
-            ("d" or "ي") when CurrentPostion.Y != ColumnsLength-1 => (CurrentPostion.X, ++CurrentPostion.Y),
+            ("d" or "ي") when CurrentPostion.Y != ColumnsLength - 1 => (CurrentPostion.X, ++CurrentPostion.Y),
             " " or _ => (CurrentPostion.X, CurrentPostion.Y)
         };
 
@@ -146,11 +164,12 @@
         Spot siteNew = Board[CurrentPostion.X, CurrentPostion.Y];
 
 
-        switch(siteNew.SpotTypes)
+        switch (siteNew.SpotTypes)
         {
             case SpotTypes.Spot:
 
-                switch (siteOld.SpotTypes) {
+                switch (siteOld.SpotTypes)
+                {
 
                     case SpotTypes.Dealer:
                         var dealer = siteOld.Cast<Dealer>();
@@ -159,16 +178,16 @@
                         siteNew.Content = new Dealer()
                         {
                             Image = ExtensionMethods.GetUrlDealer(e.Key, dealer.Image),
-                            Item=dealer.Item,
+                            Item = dealer.Item,
                             IsCurrentPostion = true,
                         };
 
                         siteOld.Content = default;
-                        siteOld.SpotTypes= SpotTypes.Spot;
+                        siteOld.SpotTypes = SpotTypes.Spot;
 
                         break;
 
-                    case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
+                    case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
 
                         var dealerPart = siteOld.Cast<Dealer>();
 
@@ -192,15 +211,15 @@
 
                 break;
 
-            case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
+            case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
 
                 switch (siteOld.SpotTypes)
                 {
                     case SpotTypes.Dealer:
-                        var crystalMine= siteNew.Cast<Dealer>();
+                        var crystalMine = siteNew.Cast<Dealer>();
                         var dealer = siteOld.Cast<Dealer>();
 
-                        crystalMine.Image=ExtensionMethods.GetUrlDealer(e.Key, dealer.Image);
+                        crystalMine.Image = ExtensionMethods.GetUrlDealer(e.Key, dealer.Image);
 
                         crystalMine.Item = dealer.Item;
                         crystalMine.IsCurrentPostion = true;
@@ -211,13 +230,13 @@
                         break;
 
 
-                    case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
+                    case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
 
                         var crystalMineNew = siteNew.Cast<Dealer>();
                         var crystalMineOld = siteOld.Cast<Dealer>();
 
 
-                        crystalMineNew.Image =ExtensionMethods.GetUrlDealer(e.Key, crystalMineOld.Image);
+                        crystalMineNew.Image = ExtensionMethods.GetUrlDealer(e.Key, crystalMineOld.Image);
                         crystalMineNew.Item = crystalMineOld.Item;
                         crystalMineNew.IsCurrentPostion = true;
 

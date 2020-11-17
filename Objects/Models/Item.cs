@@ -8,6 +8,7 @@ namespace DiamondDealer.Objects
     public class Item
     {
         public ModelImages ModelImages { get; set; }
-        public string Image => $"/image/model_{(int)ModelImages}.png";
+        public string Image => ModelImages.GetUrlImage();
+
     }
 }

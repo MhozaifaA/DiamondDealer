@@ -41,6 +41,26 @@ namespace DiamondDealer.Objects
             return $"image/model_{(int)model}_{(int)color}.png";
         }
 
+        public static ModelImages GetModelImages(this List<Item> items)
+        {
+            //100 -  107 ,  108  - 115  , 116 - 123
+            var list= items.Select(x=> (int)x.ModelImages).OrderBy(x=>x);
+            int first = list.First(); // color
+            int seound = list.Last(); // model 
+
+            return (ModelImages)((100+(first*8))+seound - 3);
+        }
+
+        public static bool IsFromTwoKind(ModelImages first, ModelImages secound)
+        {
+            if ((((int)first >= 3 && (int)first <= 10) && ((int)secound >= 0 && (int)secound <= 2)) ||
+                (((int)secound >= 3 && (int)secound <= 10) && ((int)first >= 0 && (int)first <= 2)))
+                return true;
+            return false;
+        }
+
+
+
 
         public static string GetUrlDealer(string key, string defaultimage=default)
         {
@@ -69,5 +89,21 @@ namespace DiamondDealer.Objects
                 SpotTypes.Factory => (Factory)spot.Content,
                 _ => (Dealer)spot.Content
             };
+
+
+        public static double NextSecound(this Random random, double minimum, double maximum)
+        {
+            return (random.NextDouble() * (maximum - minimum) + minimum)*1000;
+        }
+
+        public static ModelImages RandomColor(this Random random)
+        {
+            return (ModelImages)random.Next(0, 3);
+        }
+
+        public static ModelImages RandomModel(this Random random)
+        {
+            return (ModelImages)random.Next(3, 11);
+        }
     }
 }

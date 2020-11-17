@@ -1,5 +1,14 @@
 ﻿@using DiamondDealer.Objects
 
+
+
+<ol class="images">
+    @foreach (var item in Board[0, 2].Cast<Customer>().Items.Skip(1))
+    {
+        <li> <img src="@item.Image" /></li>
+    }
+</ol>
+
 <div class="board-container" @ref="MyBorad" tabindex="0" @onkeydown="KeyDown">
     @if (Board is not null)
         @for (int i = 0; i < RowsLength; i++)
@@ -62,6 +71,7 @@
 
 
 </div>
+
 @code {
     [Parameter]
     public int RowsLength { get; set; }
@@ -143,6 +153,20 @@
             else if (_Crystal.IsItem)
             {
                 _Crystal.ItemDealer = _Crystal.Items.Dequeue();
+            }
+        }
+
+
+
+        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Customer)
+        {
+            var _Customer = siteOld.Cast<Customer>();
+            if (_Customer.IsItemDealer && _Customer.IsItem)
+            {
+                if (_Customer.TryAddToItems(_Customer.ItemDealer))
+                {
+                    _Customer.ItemDealer = default;
+                }
             }
         }
 

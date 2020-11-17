@@ -18,7 +18,7 @@ namespace DiamondDealer.Objects
         {
             timer = new Timer();
             random = new Random();
-            timer.AutoReset = false;
+            //timer.AutoReset = false;
 
             switch (kind)
             {
@@ -62,7 +62,7 @@ namespace DiamondDealer.Objects
      
 
         public new Item Item { get; set; }
-        public new string Image { get; set; }
+        public new string Image { get; init; }
 
         public new bool IsItem => Item is not null;
 

@@ -8,7 +8,7 @@ namespace DiamondDealer.Objects
     public class Calculator:Dealer
     {
         public new Item Item { get; set; }
-        public new string Image { get; set; }
+        public new string Image { get; init; }
 
         public new bool IsItem => Item is not null;
 

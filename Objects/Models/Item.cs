@@ -10,5 +10,7 @@ namespace DiamondDealer.Objects
         public ModelImages ModelImages { get; set; }
         public string Image => ModelImages.GetUrlImage();
 
+        public int EqualPackage { get; init; } = -100;
+
     }
 }

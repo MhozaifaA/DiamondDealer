@@ -70,7 +70,7 @@ namespace DiamondDealer.Objects
 
             spot = Board[4, 4];
             spot.SpotTypes = SpotTypes.Factory;
-            factory = new Factory("Factory")
+            factory = new Factory("Packaging")
             {
                 Image = "/image/packaging.png",
             };
@@ -84,8 +84,6 @@ namespace DiamondDealer.Objects
             {
                 Image = "/image/storage.png",
             };
-
-
 
 
             spot = Board[0, 2];

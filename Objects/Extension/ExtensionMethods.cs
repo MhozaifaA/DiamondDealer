@@ -26,6 +26,7 @@ namespace DiamondDealer.Objects
             {
                 -1 => $"image/{ModelImages.Package.ToString().ToLower()}.png",
                 >=0 and <=10 => $"image/model_{(int)model}.png",
+                >= 100 and <= 123 => $"image/model_{(int)model}.png",
                 _ => string.Empty
             };
         }
@@ -43,12 +44,18 @@ namespace DiamondDealer.Objects
 
         public static ModelImages GetModelImages(this List<Item> items)
         {
-            //100 -  107 ,  108  - 115  , 116 - 123
-            var list= items.Select(x=> (int)x.ModelImages).OrderBy(x=>x);
-            int first = list.First(); // color
-            int seound = list.Last(); // model 
+            if (items.Count==2)
+            {
+                //100 -  107 ,  108  - 115  , 116 - 123
+                var list = items.Select(x => (int)x.ModelImages).OrderBy(x => x);
+                int first = list.First(); // color
+                int seound = list.Last(); // model 
 
-            return (ModelImages)((100+(first*8))+seound - 3);
+                return (ModelImages)((100 + (first * 8)) + seound - 3);
+            }else
+            {
+                return items.First().ModelImages;
+            }
         }
 
         public static bool IsFromTwoKind(ModelImages first, ModelImages secound)
@@ -104,6 +111,18 @@ namespace DiamondDealer.Objects
         public static ModelImages RandomModel(this Random random)
         {
             return (ModelImages)random.Next(3, 11);
+        }
+
+        public static ModelImages RandomDiamond(this Random random)
+        {
+            return (ModelImages)random.Next(100, 124);
+        }
+
+        public static T FirstOrDefault<T>(this Queue<T> queue )
+        {
+            if (queue.TryPeek(out T item))
+                return item;
+            return default;
         }
     }
 }

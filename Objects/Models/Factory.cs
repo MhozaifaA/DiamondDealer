@@ -18,7 +18,7 @@ namespace DiamondDealer.Objects
 
             timer = new Timer();
             random = new Random();
-            timer.AutoReset = false;
+           // timer.AutoReset = false;
 
 
 
@@ -35,10 +35,10 @@ namespace DiamondDealer.Objects
                         {
                             ModelImages = InItems.GetModelImages()
                         };
-                        InItems.Clear();
                         timer.Stop();
                         timer.Interval = random.NextSecound(1, 5);
                         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
+                        InItems.Clear();
                     };
 
                     break;
@@ -47,16 +47,19 @@ namespace DiamondDealer.Objects
                     CapacityIn = 1;
                     InItems = new List<Item>(CapacityIn);
 
-                    //timer.Interval = random.NextSecound(1, 3);
-                    //timer.Elapsed += (o, e) =>
-                    //{
-                    //    Item = new Item()
-                    //    {
-                    //        ModelImages = random.RandomColor()
-                    //    };
-                    //    timer.Stop();
-                    //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
-                    //};
+                    timer.Interval = random.NextSecound(1, 3);
+                    timer.Elapsed += (o, e) =>
+                    {
+                        Item = new Item()
+                        {
+                            ModelImages = ModelImages.Package,
+                            EqualPackage= (int)InItems.GetModelImages()
+                        };
+                        timer.Stop();
+                        timer.Interval = random.NextSecound(1, 3);
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
+                        InItems.Clear();
+                    };
 
                     break;
 
@@ -78,7 +81,7 @@ namespace DiamondDealer.Objects
                 if (CapacityIn==2) // factory
                 {
                     var first = InItems.FirstOrDefault();
-                    if ((item.ModelImages != ModelImages.Package) && ((first is null) || (ExtensionMethods.IsFromTwoKind(first.ModelImages, item.ModelImages))))
+                    if ((item.ModelImages != ModelImages.Package && (int)item.ModelImages <100) && ((first is null) || (ExtensionMethods.IsFromTwoKind(first.ModelImages, item.ModelImages))))
                     {
                         InItems.Add(item);
                         Work();
@@ -87,9 +90,11 @@ namespace DiamondDealer.Objects
                 }
                 else
                 {
-                    if (item.ModelImages != ModelImages.Package )
+                    if ((int)item.ModelImages >= 100)
                     {
-
+                        InItems.Add(item);
+                        Work();
+                        return true;
                     }
                 }
             }
@@ -98,7 +103,7 @@ namespace DiamondDealer.Objects
 
 
         public new Item Item { get; set; }
-        public new string Image { get; set; }
+        public new string Image { get; init; }
         public new bool IsItem => Item is not null;
 
 

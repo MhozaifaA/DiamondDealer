@@ -12,9 +12,9 @@ namespace DiamondDealer.Objects
         Dealer,
         CrystalMine,
         Factory,
-        Packaging,
         Storage,
         Customer,
-        Police
+        Police,
+        Calculator
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DiamondDealer.Objects
 {
-    public class Spot
+    public record Spot
     {
         public SpotTypes SpotTypes { get; set; }
         public object Content { get; set; } // Dealer ,Factory ,

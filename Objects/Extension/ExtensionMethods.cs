@@ -43,7 +43,10 @@ namespace DiamondDealer.Objects
         public static T Cast<T>(this Spot spot) =>
              (T)spot.Content;
 
-        public static dynamic CustomeCast<T>(this Spot spot, SpotTypes type) =>
+        public static T Cast<T>(this object obj) =>
+          (T)obj;
+
+        public static dynamic CustomeCast(this Spot spot, SpotTypes type) =>
             type switch {
                 SpotTypes.Dealer=> (Dealer)spot.Content,
                 SpotTypes.CrystalMine => (CrystalMine)spot.Content,

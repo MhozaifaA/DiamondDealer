@@ -5,35 +5,50 @@
         @for (int i = 0; i < RowsLength; i++)
             for (int j = 0; j < ColumnsLength; j++)
             {
-                <div class="board-spot">
-                    <!--Factory-->
+    <div class="board-spot">
+        <!--Factory-->
 
 
-                    @switch (Board[i, j].SpotTypes)
+        @switch (Board[i, j].SpotTypes)
+        {
+            case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
+                var site = Board[i, j].CustomeCast(Board[i, j].SpotTypes);
+                <img class="spot-img-dealer" src="@(site.Image)" />
+
+                if (site.IsItem)
+                {
+                    <img class="spot-img-dealer" src="@(site.Item.Image)" />
+                }
+
+                if (site.IsCurrentPostion)
+                {
+                    if (site.IsItemDealer)
                     {
-                        case SpotTypes.CrystalMine or SpotTypes.Factory:
-                            var site = Board[i, j].CustomeCast(Board[i, j].SpotTypes);
-                            <img class="spot-img-dealer" src="@(site.Image)" />
-                            if (site.IsCurrentPostion)
-                            {
-                                <img class="spot-img-dealer" src="@(site.ImageDealer)" />
-                            }
-                            break;
-
-                        case SpotTypes.Dealer:
-                            <img class="spot-img-dealer" src="@(Board[i,j].Cast<Dealer>().Image)" />
-                            break;
-
-                        case SpotTypes.Spot:
-                            break;
-
-                        default: break;
+                        <img class="spot-img-dealer" src="@(site.ItemDealer.Image)" />
                     }
+                    <img class="spot-img-dealer" src="@(site.ImageDealer)" />
+                }
+                break;
+
+            case SpotTypes.Dealer:
+                var dealer = Board[i, j].Cast<Dealer>();
+                if (dealer.IsItem)
+                {
+                    <img class="spot-img-dealer" src="@(dealer.Item.Image)" />
+                }
+                <img class="spot-img-dealer" src="@(dealer.Image)" />
+                break;
+
+            case SpotTypes.Spot:
+                break;
+
+            default: break;
+        }
 
 
 
 
-                </div>
+    </div>
             }
 
 
@@ -70,31 +85,44 @@
         {
             Image = DealerImages.Top.GetUrlImage(),
             IsCurrentPostion = true,
+
         };
 
         var initCrystalMine = Board[4, 0];
         initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
-        initCrystalMine.Content = new CrystalMine()
+        initCrystalMine.Content = new CrystalMine(1)
         {
             Image = "/image/crystalmine1.png",
+            Item=new Item() {  ModelImages=ModelImages.Seven}
         };
 
-
-        initCrystalMine = Board[2, 0];
-        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
-        initCrystalMine.Content = new CrystalMine()
-        {
-            Image = "/image/crystalmine1.png",
-        };
-
-
+        //color
         initCrystalMine = Board[3, 0];
         initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
-        initCrystalMine.Content = new CrystalMine()
+        initCrystalMine.Content = new CrystalMine(1)
         {
             Image = "/image/crystalmine2.png",
         };
 
+        initCrystalMine = Board[2, 0];
+        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
+        initCrystalMine.Content = new CrystalMine(0)
+        {
+            Image = "/image/crystalmine1.png",
+        };
+
+
+
+
+
+
+
+        initCrystalMine = Board[2, 4];
+        initCrystalMine.SpotTypes = SpotTypes.Factory;
+        initCrystalMine.Content = new Factory()
+        {
+            Image = "/image/factory.png",
+        };
 
         initCrystalMine = Board[3, 4];
         initCrystalMine.SpotTypes = SpotTypes.Factory;
@@ -102,6 +130,53 @@
         {
             Image = "/image/factory.png",
         };
+
+
+        initCrystalMine = Board[4, 4];
+        initCrystalMine.SpotTypes = SpotTypes.Factory;
+        initCrystalMine.Content = new Factory()
+        {
+            Image = "/image/packaging.png",
+        };
+
+
+        initCrystalMine = Board[6, 0];
+        initCrystalMine.SpotTypes = SpotTypes.Storage;
+        initCrystalMine.Content = new Storage()
+        {
+            Image = "/image/storage.png",
+            Items = { new Item() {ModelImages=ModelImages.Four},
+                new Item() { ModelImages = ModelImages.Ten },
+            new Item() { ModelImages = ModelImages.Nine },
+            new Item() { ModelImages = ModelImages.Nine },}
+        };
+
+
+
+
+        initCrystalMine = Board[0, 2];
+        initCrystalMine.SpotTypes = SpotTypes.Customer;
+        initCrystalMine.Content = new Customer()
+        {
+            Image = "/image/customer.png",
+        };
+
+
+        initCrystalMine = Board[1, 0];
+        initCrystalMine.SpotTypes = SpotTypes.Police;
+        initCrystalMine.Content = new Police()
+        {
+            Image = "/image/police.png",
+        };
+
+
+        initCrystalMine = Board[6, 4];
+        initCrystalMine.SpotTypes = SpotTypes.Calculator;
+        initCrystalMine.Content = new Calculator()
+        {
+            Image = "/image/calculator.png",
+        };
+
 
         return base.OnParametersSetAsync();
     }
@@ -119,6 +194,42 @@
         var CurrentPostionOld = CurrentPostion;
         Spot siteOld = Board[CurrentPostion.X, CurrentPostion.Y];
 
+        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.CrystalMine)
+        {
+            var _Crystal= siteOld.Cast<CrystalMine>();
+            if ( _Crystal.IsItem && !_Crystal.IsItemDealer)
+            {
+                _Crystal.ItemDealer = _Crystal.Item;
+                _Crystal.Item = default;
+            }
+        }
+
+        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Factory)
+        {
+            var _Crystal = siteOld.Cast<Factory>();
+            if (!_Crystal.IsItem && _Crystal.IsItemDealer)
+            {
+                _Crystal.Item = _Crystal.ItemDealer;
+                _Crystal.ItemDealer = default;
+            }
+        }
+
+
+        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Storage)
+        {
+            var _Crystal = siteOld.Cast<Storage>();
+            if ( _Crystal.IsItemDealer)
+            {
+                _Crystal.Items.Add(_Crystal.ItemDealer);
+                _Crystal.ItemDealer = default;
+            }else if(_Crystal.IsItem)
+            {
+                _Crystal.ItemDealer = _Crystal.Items.Dequeue();
+            }
+        }
+
+
+
         CurrentPostion = e.Key switch
         {
             ("w" or "ص") when CurrentPostion.X != 0 => (--CurrentPostion.X, CurrentPostion.Y),
@@ -127,6 +238,7 @@
             ("d" or "ي") when CurrentPostion.Y != ColumnsLength-1 => (CurrentPostion.X, ++CurrentPostion.Y),
             " " or _ => (CurrentPostion.X, CurrentPostion.Y)
         };
+
 
         if (CurrentPostionOld == CurrentPostion)
             return;
@@ -156,21 +268,21 @@
 
                         break;
 
-                    case SpotTypes.CrystalMine or SpotTypes.Factory:
+                    case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
 
-                        var crystalMine = siteOld.Cast<Dealer>();
+                        var dealerPart = siteOld.Cast<Dealer>();
 
                         siteNew.SpotTypes = SpotTypes.Dealer;
                         siteNew.Content = new Dealer()
                         {
-                            Image = ExtensionMethods.GetUrlDealer(e.Key, crystalMine.Image),
-                            Item = crystalMine.Item,
+                            Image = ExtensionMethods.GetUrlDealer(e.Key, dealerPart.Image),
+                            Item = dealerPart.Item,
                             IsCurrentPostion = true,
                         };
 
-                        crystalMine.IsCurrentPostion = false;
-                        crystalMine.Image = default(string);
-                        crystalMine.Item = default(Item);
+                        dealerPart.IsCurrentPostion = false;
+                        dealerPart.Image = default(string);
+                        dealerPart.Item = default(Item);
 
                         break;
 
@@ -180,7 +292,7 @@
 
                 break;
 
-            case SpotTypes.CrystalMine or SpotTypes.Factory:
+            case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
 
                 switch (siteOld.SpotTypes)
                 {
@@ -199,7 +311,7 @@
                         break;
 
 
-                    case SpotTypes.CrystalMine or SpotTypes.Factory:
+                    case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or  SpotTypes.Calculator:
 
                         var crystalMineNew = siteNew.Cast<Dealer>();
                         var crystalMineOld = siteOld.Cast<Dealer>();

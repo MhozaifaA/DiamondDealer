@@ -5,20 +5,17 @@ using System.Threading.Tasks;
 
 namespace DiamondDealer.Objects
 {
-    public class Factory:Dealer
+    public class Storage:Dealer
     {
-        public Factory(int kind=0)
+        public RollQueue<Item> Items;
+        public Storage()
         {
-
+            Items = new RollQueue<Item>(3);
         }
 
-        public new Item Item { get; set; }
+        public new Item Item => Items.FirstOrDefault();
         public new string Image { get; set; }
-        public new bool IsItem => Item is not null;
-
-
-        public List<Item> InItems { get; set; } = new List<Item>(2);
-
+        public new bool IsItem => Items.Count!=0;
 
 
         public Item ItemDealer
@@ -27,6 +24,7 @@ namespace DiamondDealer.Objects
             set => base.Item = value;
         }
         public bool IsItemDealer => base.IsItem;
+
         public string ImageDealer
         {
             get => base.Image;

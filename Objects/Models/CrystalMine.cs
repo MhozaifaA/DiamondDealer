@@ -3,30 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.ComponentModel;
 
 namespace DiamondDealer.Objects
 {
     public class CrystalMine : Dealer
     {
-        public CrystalMine()
+        public CrystalMine(int kind=0)
         {
             //Timer s =new Timer((o)=> { Console.WriteLine($"Im{DateTime.Now.Second}"); }, null,100,1); 
 
-            //System.Timers.Timer timer = new System.Timers.Timer(1000);
+            //System.Timers.Timer timer = new System.Timers.Timer(2000);
             //timer.Elapsed  += (e, s) => {
-            //    Console.WriteLine($"Im{DateTime.Now.Second}");
+            //    Item = new Item()
+            //    {
+            //        ModelImages = ModelImages.Ten,
+            //    };
+            //  //  OnItem.Invoke(5);
+            //  //  Console.WriteLine(10);
             //};
+            //timer.AutoReset = false;
             //timer.Start();
         }
         public new Item Item { get; set; }
         public new string Image { get; set; }
 
-      
+        public new bool IsItem => Item is not null;
+
+
         public Item ItemDealer
         {
             get => base.Item; 
             set => base.Item= value;
         }
+        public  bool IsItemDealer => base.IsItem;
 
         public string ImageDealer
         {
@@ -34,5 +44,7 @@ namespace DiamondDealer.Objects
             set => base.Image = value;
         }
 
+        public event Action OnItem;
+        //public event PropertyChangedEventHandler PropertyChanged;
     }
 }

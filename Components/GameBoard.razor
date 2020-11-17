@@ -59,9 +59,6 @@
     [Parameter]
     public int ColumnsLength { get; set; }
 
-    /// <summary>
-    /// bool: at postion ,  string: url png , object: { kind: of object , what: is  , functions: helper}
-    /// </summary>
     Spot[,] Board;
 
     protected ElementReference MyBorad;
@@ -79,104 +76,7 @@
 
         CurrentPostion = (RowsLength - 1, ColumnsLength / 2);
 
-        var initDealer = Board[CurrentPostion.X, CurrentPostion.Y];
-        initDealer.SpotTypes = SpotTypes.Dealer;
-        initDealer.Content = new Dealer()
-        {
-            Image = DealerImages.Top.GetUrlImage(),
-            IsCurrentPostion = true,
-
-        };
-
-        var initCrystalMine = Board[4, 0];
-        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
-        initCrystalMine.Content = new CrystalMine(1)
-        {
-            Image = "/image/crystalmine1.png",
-            Item=new Item() {  ModelImages=ModelImages.Seven}
-        };
-
-        //color
-        initCrystalMine = Board[3, 0];
-        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
-        initCrystalMine.Content = new CrystalMine(1)
-        {
-            Image = "/image/crystalmine2.png",
-        };
-
-        initCrystalMine = Board[2, 0];
-        initCrystalMine.SpotTypes = SpotTypes.CrystalMine;
-        initCrystalMine.Content = new CrystalMine(0)
-        {
-            Image = "/image/crystalmine1.png",
-        };
-
-
-
-
-
-
-
-        initCrystalMine = Board[2, 4];
-        initCrystalMine.SpotTypes = SpotTypes.Factory;
-        initCrystalMine.Content = new Factory()
-        {
-            Image = "/image/factory.png",
-        };
-
-        initCrystalMine = Board[3, 4];
-        initCrystalMine.SpotTypes = SpotTypes.Factory;
-        initCrystalMine.Content = new Factory()
-        {
-            Image = "/image/factory.png",
-        };
-
-
-        initCrystalMine = Board[4, 4];
-        initCrystalMine.SpotTypes = SpotTypes.Factory;
-        initCrystalMine.Content = new Factory()
-        {
-            Image = "/image/packaging.png",
-        };
-
-
-        initCrystalMine = Board[6, 0];
-        initCrystalMine.SpotTypes = SpotTypes.Storage;
-        initCrystalMine.Content = new Storage()
-        {
-            Image = "/image/storage.png",
-            Items = { new Item() {ModelImages=ModelImages.Four},
-                new Item() { ModelImages = ModelImages.Ten },
-            new Item() { ModelImages = ModelImages.Nine },
-            new Item() { ModelImages = ModelImages.Nine },}
-        };
-
-
-
-
-        initCrystalMine = Board[0, 2];
-        initCrystalMine.SpotTypes = SpotTypes.Customer;
-        initCrystalMine.Content = new Customer()
-        {
-            Image = "/image/customer.png",
-        };
-
-
-        initCrystalMine = Board[1, 0];
-        initCrystalMine.SpotTypes = SpotTypes.Police;
-        initCrystalMine.Content = new Police()
-        {
-            Image = "/image/police.png",
-        };
-
-
-        initCrystalMine = Board[6, 4];
-        initCrystalMine.SpotTypes = SpotTypes.Calculator;
-        initCrystalMine.Content = new Calculator()
-        {
-            Image = "/image/calculator.png",
-        };
-
+        DiamondDealer.Objects.Board.Initialize(ref Board);
 
         return base.OnParametersSetAsync();
     }

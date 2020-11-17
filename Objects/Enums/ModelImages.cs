@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 
 namespace DiamondDealer.Objects
 {
+    [Flags]
     public enum ModelImages
     {
-        Purple=0,
+        Package = -1,
+
+        Purple = 0,
         Orange=1,
         Green = 2,
 

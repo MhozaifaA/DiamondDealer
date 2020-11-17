@@ -9,7 +9,8 @@ namespace DiamondDealer.Objects
 {
     public class CrystalMine : Dealer
     {
-        public CrystalMine(int kind=0)
+        //kind: CrystalMine Model  ,  kind: CrystalMine Color
+        public CrystalMine(string kind)
         {
             //Timer s =new Timer((o)=> { Console.WriteLine($"Im{DateTime.Now.Second}"); }, null,100,1); 
 

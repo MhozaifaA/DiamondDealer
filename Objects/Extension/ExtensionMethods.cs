@@ -22,7 +22,23 @@ namespace DiamondDealer.Objects
 
         public static string GetUrlImage(this ModelImages model)
         {
-            return $"image/model_{(int)model}.png";
+            return (int)model switch
+            {
+                -1 => $"image/{ModelImages.Package.ToString().ToLower()}.png",
+                >=0 and <=10 => $"image/model_{(int)model}.png",
+                _ => string.Empty
+            };
+        }
+
+        public static string GetUrlImage(this ModelImages model,  ModelImages color)
+        {
+            if ((int)model >= 3 && (int)model <= 10)
+                throw new AggregateException(message: $"{model} is not as model");
+
+            if ((int)color >= 0 && (int)color <=2)
+                throw new AggregateException(message:$"{color} is not as Color");
+
+            return $"image/model_{(int)model}_{(int)color}.png";
         }
 
 

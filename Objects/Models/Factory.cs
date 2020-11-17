@@ -7,7 +7,8 @@ namespace DiamondDealer.Objects
 {
     public class Factory:Dealer
     {
-        public Factory(int kind=0)
+        // kind  Factory , Packaging
+        public Factory(string kind)
         {
 
         }

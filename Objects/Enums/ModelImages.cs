@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DiamondDealer.Objects
 {
-    [Flags]
+    //[Flags]
     public enum ModelImages
     {
         Package = -1,

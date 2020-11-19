@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace DiamondDealer.Objects
 {
-    [Flags]
     public enum SpotTypes
     {
         Spot,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +14,30 @@ namespace DiamondDealer.Objects
                 for (int j = 0; j < array.GetLength(1); j++)
                     array[i,j] = new T();
             return array;
+        }
+
+
+        public static void PoliceAction(this Spot[,] spots, SpotTypes type)
+        {
+            Collection<Spot> spotsoftype = new Collection<Spot>();
+            foreach (var spot in spots)
+                if (spot.SpotTypes== type)
+                    spotsoftype.Add(spot);
+
+            var OnAction = spotsoftype.OrderBy(x => Guid.NewGuid()).First();
+
+            if (type == SpotTypes.Factory) //factory
+            {
+                var factory=OnAction.Cast<Factory>();
+                if (factory.IsItem)
+                    factory.Item = default;
+            }
+            else // storage
+            {
+                var storage = OnAction.Cast<Storage>();
+                if (storage.IsItem)
+                    storage.Items.Dequeue();
+            }
         }
 
         public static string GetUrlImage(this DealerImages dealer)
@@ -116,6 +141,11 @@ namespace DiamondDealer.Objects
         public static ModelImages RandomDiamond(this Random random)
         {
             return (ModelImages)random.Next(100, 124);
+        }
+
+        public static SpotTypes RandomSpot(this Random random)
+        {
+            return (SpotTypes)random.Next((int)SpotTypes.Factory, (int)SpotTypes.Storage +1);
         }
 
         public static T FirstOrDefault<T>(this Queue<T> queue )

@@ -94,7 +94,7 @@
         Board = new Spot[RowsLength, ColumnsLength].InitializeArray();
 
         CurrentPostion = (RowsLength - 1, ColumnsLength / 2);
-        DiamondDealer.Objects.Board.Initialize(ref Board, () => { StateHasChanged(); });
+        DiamondDealer.Objects.Board.Initialize(Board, () => { StateHasChanged(); });
 
         return base.OnParametersSetAsync();
     }

@@ -76,7 +76,7 @@ namespace DiamondDealer.Objects
                 var list = items.Select(x => (int)x.ModelImages).OrderBy(x => x);
                 int first = list.First(); // color
                 int seound = list.Last(); // model 
-
+                //1 
                 return (ModelImages)((100 + (first * 8)) + seound - 3);
             }
             else

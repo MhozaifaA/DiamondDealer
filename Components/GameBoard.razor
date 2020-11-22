@@ -1,82 +1,95 @@
 ﻿@using DiamondDealer.Objects
 
 
+@if (Board is not null)
+{
+    <ol class="images">
+        @foreach (var item in Board[0, 2].Cast<Customer>().Items.Skip(1))
+        {
+            <li> <img src="@item.Image" /></li>
+        }
+    </ol>
 
-<ol class="images">
-    @foreach (var item in Board[0, 2].Cast<Customer>().Items.Skip(1))
-    {
-        <li> <img src="@item.Image" /></li>
-    }
-</ol>
-
-<div class="board-container" @ref="MyBorad" tabindex="0" @onkeydown="KeyDown">
-    @if (Board is not null)
-        @for (int i = 0; i < RowsLength; i++)
-            for (int j = 0; j < ColumnsLength; j++)
-            {
-                <div class="board-spot">
-                    <!--Factory-->
+    <div class="board-container" @ref="MyBorad" tabindex="0" @onkeydown="KeyDown">
+        @if (Board is not null)
+            @for (int i = 0; i < RowsLength; i++)
+                for (int j = 0; j < ColumnsLength; j++)
+                {
+                    <div class="board-spot">
+                        <!--Factory-->
 
 
-                    @switch (Board[i, j].SpotTypes)
-                    {
-                        case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
-                            var site = Board[i, j].CustomeCast(Board[i, j].SpotTypes);
-                            <img class="spot-img-dealer" src="@(site.Image)" />
+                        @switch (Board[i, j].SpotTypes)
+                        {
+                            case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
+                                var site = Board[i, j].CustomeCast(Board[i, j].SpotTypes);
+                                <img class="spot-img-dealer" src="@(site.Image)" />
 
-                            if (Board[i, j].SpotTypes == SpotTypes.Factory)
-                            {
-                                var fac = (Factory)site;
-                                foreach (var item in fac.InItems.OrderBy(x => x.ModelImages))
+                                if (Board[i, j].SpotTypes == SpotTypes.Factory)
                                 {
-                                    <img class="spot-img-dealer" src="@(item.Image)" />
+                                    var fac = (Factory)site;
+                                    foreach (var item in fac.InItems.OrderBy(x => x.ModelImages))
+                                    {
+                                        <img class="spot-img-dealer" src="@(item.Image)" />
+                                    }
                                 }
-                            }
 
-                            if (site.IsItem)
-                            {
-                                <img class="spot-img-dealer" src="@(site.Item.Image)" />
-                            }
-
-                            if (site.IsCurrentPostion)
-                            {
-                                if (site.IsItemDealer)
+                                if (site.IsItem)
                                 {
-                                    <img class="spot-img-dealer" src="@(site.ItemDealer.Image)" />
+                                    <img class="spot-img-dealer" src="@(site.Item.Image)" />
                                 }
-                                <img class="spot-img-dealer" src="@(site.ImageDealer)" />
-                            }
-                            break;
 
-                        case SpotTypes.Dealer:
-                            var dealer = Board[i, j].Cast<Dealer>();
-                            if (dealer.IsItem)
-                            {
-                                <img class="spot-img-dealer" src="@(dealer.Item.Image)" />
-                            }
-                            <img class="spot-img-dealer" src="@(dealer.Image)" />
-                            break;
+                                if (site.IsCurrentPostion)
+                                {
+                                    if (site.IsItemDealer)
+                                    {
+                                        <img class="spot-img-dealer" src="@(site.ItemDealer.Image)" />
+                                    }
+                                    <img class="spot-img-dealer" src="@(site.ImageDealer)" />
+                                }
+                                break;
 
-                        case SpotTypes.Spot:
-                            break;
+                            case SpotTypes.Dealer:
+                                var dealer = Board[i, j].Cast<Dealer>();
+                                if (dealer.IsItem)
+                                {
+                                    <img class="spot-img-dealer" src="@(dealer.Item.Image)" />
+                                }
+                                <img class="spot-img-dealer" src="@(dealer.Image)" />
+                                break;
 
-                        default: break;
-                    }
+                            case SpotTypes.Spot:
+                                break;
+
+                            default: break;
+                        }
 
 
 
 
-                </div>
-            }
+                    </div>
+                }
 
 
-</div>
+    </div>
+}
+else
+{
+    <p> Game is ready... </p>
+}
+
 
 @code {
+
+    #region -   Properties   -
+
     [Parameter]
     public int RowsLength { get; set; }
     [Parameter]
     public int ColumnsLength { get; set; }
+
+    [Parameter]
+    public EventCallback OnLogger { get; set; }
 
     Spot[,] Board;
 
@@ -84,18 +97,36 @@
 
     (int X, int Y) CurrentPostion;
 
+    public bool IsParametersSet { get; set; }
+
+    #endregion
+
+    #region -   Initializ   -
+
     protected override Task OnInitializedAsync()
     {
+        GameLogger.Log<Objects.ConsoleLog>($"{nameof(OnInitializedAsync)}");
         return base.OnInitializedAsync();
     }
 
     protected override Task OnParametersSetAsync()
     {
-        Board = new Spot[RowsLength, ColumnsLength].InitializeArray();
+        if (!IsParametersSet)
+        {
+            Board = new Spot[RowsLength, ColumnsLength].InitializeArray();
+            CurrentPostion = (RowsLength - 1, ColumnsLength / 2);
 
-        CurrentPostion = (RowsLength - 1, ColumnsLength / 2);
-        DiamondDealer.Objects.Board.Initialize(Board, () => { StateHasChanged(); });
+            DiamondDealer.Objects.Board.Initialize(Board, () =>
+            {
+                StateHasChanged();
+                GameLogger.Log<Objects.ConsoleLog>($"Action from spot");
+            });
 
+            IsParametersSet = true;
+
+            GameLogger.Log<Objects.ConsoleLog>($"{nameof(IsParametersSet)}:{IsParametersSet}");
+        }
+        GameLogger.Log<Objects.ConsoleLog>($"{nameof(OnParametersSetAsync)}");
         return base.OnParametersSetAsync();
     }
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -103,130 +134,75 @@
         if (firstRender)
         {
             await MyBorad.FocusAsync();
+            GameLogger.Log<Objects.ConsoleLog>($"MyBorad.Focus {nameof(firstRender)}");
             //  await JSRuntime.InvokeVoidAsync("SetFocusToElement", myDiv);
         }
+     //   GameLogger.Log<Objects.ConsoleLog>($"{nameof(OnAfterRenderAsync)}");
+
     }
+
+
+    #endregion
+
+    #region -   Action   -
 
     private void KeyDown(KeyboardEventArgs e)
     {
+        GameLogger.Log<Objects.ConsoleLog>($"{nameof(KeyDown)} Pressed: [{e.Key}]");
+
         var CurrentPostionOld = CurrentPostion;
         Spot siteOld = Board[CurrentPostion.X, CurrentPostion.Y];
 
-        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.CrystalMine)
-        {
-            var _Crystal = siteOld.Cast<CrystalMine>();
-            if (_Crystal.IsItem && !_Crystal.IsItemDealer)
-            {
-                _Crystal.ItemDealer = _Crystal.Item;
-                _Crystal.Item = default;
-                _Crystal.Work();
-            }
-        }
+        siteOld.EnableSpace(e.Key);
 
-
-        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Factory)
-        {
-            var _Crystal = siteOld.Cast<Factory>();
-            if (_Crystal.IsItemDealer && !_Crystal.IsItem)
-            {
-                if (_Crystal.TryAddToItems(_Crystal.ItemDealer))
-                {
-                    _Crystal.ItemDealer = default;
-                }
-            }
-            else if (!_Crystal.IsItemDealer && _Crystal.IsItem)
-            {
-                _Crystal.ItemDealer = _Crystal.Item;
-                _Crystal.Item = default;
-            }
-        }
-
-
-        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Storage)
-        {
-            var _Crystal = siteOld.Cast<Storage>();
-            if (_Crystal.IsItemDealer)
-            {
-                _Crystal.Items.Add(_Crystal.ItemDealer);
-                _Crystal.ItemDealer = default;
-            }
-            else if (_Crystal.IsItem)
-            {
-                _Crystal.ItemDealer = _Crystal.Items.Dequeue();
-            }
-        }
-
-
-
-        if (e.Key == " " && siteOld.SpotTypes == SpotTypes.Customer)
-        {
-            var _Customer = siteOld.Cast<Customer>();
-            if (_Customer.IsItemDealer && _Customer.IsItem)
-            {
-                if (_Customer.TryAddToItems(_Customer.ItemDealer))
-                {
-                    _Customer.ItemDealer = default;
-                }
-            }
-        }
-
-
-
-        CurrentPostion = e.Key switch
-        {
-            ("w" or "ص") when CurrentPostion.X != 0 => (--CurrentPostion.X, CurrentPostion.Y),
-            ("s" or "س") when CurrentPostion.X != RowsLength - 1 => (++CurrentPostion.X, CurrentPostion.Y),
-            ("a" or "ش") when CurrentPostion.Y != 0 => (CurrentPostion.X, --CurrentPostion.Y),
-            ("d" or "ي") when CurrentPostion.Y != ColumnsLength - 1 => (CurrentPostion.X, ++CurrentPostion.Y),
-            " " or _ => (CurrentPostion.X, CurrentPostion.Y)
-        };
-
+        CurrentPostion.GetNextPosstion(e.Key, RowsLength, ColumnsLength);
 
         if (CurrentPostionOld == CurrentPostion)
+        {
+            GameLogger.Log<Objects.ConsoleLog>($"{nameof(KeyDown)} Pressed: Same last CurrentPostion");
             return;
+        }
 
         Spot siteNew = Board[CurrentPostion.X, CurrentPostion.Y];
 
+        GameLogger.Log<Objects.ConsoleLog>($"{nameof(KeyDown)} Pressed: new {CurrentPostion}");
+
+        EnableMove(e.Key,siteOld, siteNew);
+
+        GameLogger.Log<Objects.ConsoleLog>($"Pressed: [{e.Key}]  Postion: [{CurrentPostion.ToString()}]");
+    }
+
+    #endregion
+
+    #region -   Methods   -
+
+    private void EnableMove(string key , Spot siteOld, Spot siteNew)
+    {
+        GameLogger.Log<Objects.ConsoleLog>($"{nameof(EnableMove)} Move:  {siteNew.SpotTypes} - {siteOld.SpotTypes}");
 
         switch (siteNew.SpotTypes)
         {
             case SpotTypes.Spot:
+                var dealer = siteOld.Cast<Dealer>();
+                siteNew.SpotTypes = SpotTypes.Dealer;
+                siteNew.Content = new Dealer()
+                {
+                    Image = ExtensionMethods.GetUrlDealer(key, dealer.Image),
+                    Item = dealer.Item,
+                    IsCurrentPostion = true,
+                };
 
                 switch (siteOld.SpotTypes)
                 {
-
                     case SpotTypes.Dealer:
-                        var dealer = siteOld.Cast<Dealer>();
-
-                        siteNew.SpotTypes = SpotTypes.Dealer;
-                        siteNew.Content = new Dealer()
-                        {
-                            Image = ExtensionMethods.GetUrlDealer(e.Key, dealer.Image),
-                            Item = dealer.Item,
-                            IsCurrentPostion = true,
-                        };
-
                         siteOld.Content = default;
                         siteOld.SpotTypes = SpotTypes.Spot;
-
                         break;
 
                     case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
-
-                        var dealerPart = siteOld.Cast<Dealer>();
-
-                        siteNew.SpotTypes = SpotTypes.Dealer;
-                        siteNew.Content = new Dealer()
-                        {
-                            Image = ExtensionMethods.GetUrlDealer(e.Key, dealerPart.Image),
-                            Item = dealerPart.Item,
-                            IsCurrentPostion = true,
-                        };
-
-                        dealerPart.IsCurrentPostion = false;
-                        dealerPart.Image = default(string);
-                        dealerPart.Item = default(Item);
-
+                        dealer.IsCurrentPostion = false;
+                        dealer.Image = default(string);
+                        dealer.Item = default(Item);
                         break;
 
                     default:
@@ -237,39 +213,22 @@
 
             case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
 
+                var _siteNew = siteNew.Cast<Dealer>();
+                var _siteOld = siteOld.Cast<Dealer>();
+                _siteNew.Image = ExtensionMethods.GetUrlDealer(key, _siteOld.Image);
+                _siteNew.Item = _siteOld.Item;
+                _siteNew.IsCurrentPostion = true;
+
                 switch (siteOld.SpotTypes)
                 {
                     case SpotTypes.Dealer:
-                        var crystalMine = siteNew.Cast<Dealer>();
-                        var dealer = siteOld.Cast<Dealer>();
-
-                        crystalMine.Image = ExtensionMethods.GetUrlDealer(e.Key, dealer.Image);
-
-                        crystalMine.Item = dealer.Item;
-                        crystalMine.IsCurrentPostion = true;
-
                         siteOld.SpotTypes = SpotTypes.Spot;
                         siteOld.Content = default;
-
                         break;
-
-
                     case SpotTypes.CrystalMine or SpotTypes.Factory or SpotTypes.Storage or SpotTypes.Customer or SpotTypes.Police or SpotTypes.Calculator:
-
-                        var crystalMineNew = siteNew.Cast<Dealer>();
-                        var crystalMineOld = siteOld.Cast<Dealer>();
-
-
-                        crystalMineNew.Image = ExtensionMethods.GetUrlDealer(e.Key, crystalMineOld.Image);
-                        crystalMineNew.Item = crystalMineOld.Item;
-                        crystalMineNew.IsCurrentPostion = true;
-
-
-                        crystalMineOld.Item = default(Item);
-                        crystalMineOld.Image = default;
-                        crystalMineOld.IsCurrentPostion = false;
-
-
+                        _siteOld.Item = default(Item);
+                        _siteOld.Image = default;
+                        _siteOld.IsCurrentPostion = false;
                         break;
 
                     default:
@@ -282,8 +241,10 @@
                 break;
         }
 
+        GameLogger.Log<Objects.ConsoleLog>($"{nameof(EnableMove)} To:  {siteNew.SpotTypes} - {siteOld.SpotTypes}");
 
-        Console.WriteLine($"Pressed: [{e.Key}]  Postion: [{CurrentPostion.ToString()}] ");
     }
+
+    #endregion
 
 }

@@ -39,6 +39,10 @@ namespace DiamondDealer.Objects
                         timer.Interval = random.NextSecound(1, 5);
                         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
                         InItems.Clear();
+
+                        GameLogger.Log<Objects.ConsoleLog>($"{nameof(Factory)} Type: {kind} , Interval:  {timer.Interval} , ModelImages: {Item.ModelImages}");
+
+
                     };
 
                     break;
@@ -59,6 +63,9 @@ namespace DiamondDealer.Objects
                         timer.Interval = random.NextSecound(1, 3);
                         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
                         InItems.Clear();
+
+                        GameLogger.Log<Objects.ConsoleLog>($"{nameof(Factory)} Type: {kind} , Interval:  {timer.Interval} , ModelImages: {Item.ModelImages}");
+
                     };
 
                     break;
@@ -85,6 +92,10 @@ namespace DiamondDealer.Objects
                     {
                         InItems.Add(item);
                         Work();
+
+                        GameLogger.Log<Objects.ConsoleLog>($"{nameof(TryAddToItems)} Type: {"factory"} , Add {item.ModelImages} and Work");
+
+
                         return true;
                     }
                 }
@@ -94,6 +105,9 @@ namespace DiamondDealer.Objects
                     {
                         InItems.Add(item);
                         Work();
+
+                        GameLogger.Log<Objects.ConsoleLog>($"{nameof(TryAddToItems)} Type: {"pagcking"} , Add {item.ModelImages} and Work");
+
                         return true;
                     }
                 }

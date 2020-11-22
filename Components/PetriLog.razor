@@ -1,0 +1,27 @@
+﻿@using DiamondDealer.Objects
+<div class="text-center m-5">
+    <h3>Petri Logs @LogsFromInit</h3>
+    <div style="overflow-y: scroll; height:400px;">
+        <Virtualize Context="log" Items="@GameLogger.PetriLogs">
+            <div class="alert alert-info">
+                @log.Message
+            </div>
+        </Virtualize>
+    </div>
+</div>
+
+@code
+{
+    int LogsFromInit;
+    protected override void OnInitialized()
+    {
+        GameLogger.OnLogger += (type) =>
+        {
+            if (type == typeof(Objects.PetriLog))
+            {
+                StateHasChanged(); LogsFromInit++;
+            }
+        };
+        base.OnInitialized();
+    }
+}

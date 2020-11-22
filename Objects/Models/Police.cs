@@ -15,7 +15,9 @@ namespace DiamondDealer.Objects
         {
             random = new Random();
             timer = new Timer((e)=> {
-                OnPolice?.Invoke(random.RandomSpot());
+                var ranSpot = random.RandomSpot();
+                OnPolice?.Invoke(ranSpot);
+                GameLogger.Log<Objects.ConsoleLog>($"{nameof(Police)}  , Atack {ranSpot} ");
             },
                 null, 3*1000,15*1000);
         }

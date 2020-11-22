@@ -29,6 +29,10 @@ namespace DiamondDealer.Objects
                     EqualPackage = (int)diamond
                 });
                 timer.Change( (int)random.NextSecound(5, 20) , Timeout.Infinite);
+
+                GameLogger.Log<Objects.ConsoleLog>($"{nameof(Customer)}  ,  ModelImages: {Item.ModelImages} , EqualPackage: {Item.EqualPackage}");
+
+
             }, null,(int)random.NextSecound(1, 3) , Timeout.Infinite);
 
         }
@@ -39,6 +43,9 @@ namespace DiamondDealer.Objects
             if (Item is not null && item.ModelImages==ModelImages.Package &&  Item.EqualPackage == item.EqualPackage)
             {
                 Items.Dequeue();
+
+                GameLogger.Log<Objects.ConsoleLog>($"{nameof(TryAddToItems)} Dequeue");
+
                 return true;
             }
 

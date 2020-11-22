@@ -33,6 +33,9 @@ namespace DiamondDealer.Objects
                         timer.Stop();
                         timer.Interval = random.NextSecound(1, 5);
                         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
+
+                        GameLogger.Log<Objects.ConsoleLog>($"{nameof(CrystalMine)} Type: {kind} , Interval:  {timer.Interval} , ModelImages: {Item.ModelImages}");
+
                     };
                     break;
 
@@ -47,6 +50,9 @@ namespace DiamondDealer.Objects
                         timer.Stop();
                         timer.Interval = random.NextSecound(1, 3);
                         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
+
+                        GameLogger.Log<Objects.ConsoleLog>($"{nameof(CrystalMine)} Type: {kind} , Interval:  {timer.Interval} , ModelImages: {Item.ModelImages}");
+
                     };
                     break;
 

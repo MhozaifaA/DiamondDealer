@@ -12,10 +12,13 @@ namespace DiamondDealer.Objects
 
         private Timer timer;
         private Random random;
+        private readonly string Key;
 
         //kind: CrystalMine Model  ,  kind: CrystalMine Color
         public CrystalMine(string kind)
         {
+            Key = $"{nameof(CrystalMine)}{GameLogger.CrystalMine}";
+
             timer = new Timer();
             random = new Random();
             //timer.AutoReset = false;
@@ -65,9 +68,17 @@ namespace DiamondDealer.Objects
         }
 
         public void Work() => timer.Enabled = true;
-     
 
-        public new Item Item { get; set; }
+
+        private Item _Item;
+        public new Item Item
+        {
+            get => _Item;
+            set
+            { _Item = value;
+                GameLogger.WriteOperations(Key, (int)(_Item?.ModelImages??0));}
+        }
+
         public new string Image { get; init; }
 
         public new bool IsItem => Item is not null;

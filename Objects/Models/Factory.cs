@@ -12,9 +12,11 @@ namespace DiamondDealer.Objects
         private Timer timer;
         private Random random;
         private int CapacityIn;
+        private readonly string Key;
         // kind  Factory , Packaging
         public Factory(string kind)
         {
+            Key = $"{nameof(Factory)}{GameLogger.Factory}";
 
             timer = new Timer();
             random = new Random();
@@ -116,7 +118,16 @@ namespace DiamondDealer.Objects
         }
 
 
-        public new Item Item { get; set; }
+        private Item _Item;
+        public new Item Item
+        {
+            get => _Item;
+            set { _Item = value;
+                GameLogger.WriteOperations(Key, (int)(_Item?.ModelImages ?? 0));}
+        }
+
+
+
         public new string Image { get; init; }
         public new bool IsItem => Item is not null;
 

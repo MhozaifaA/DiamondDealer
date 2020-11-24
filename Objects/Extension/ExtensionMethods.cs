@@ -227,10 +227,28 @@ namespace DiamondDealer.Objects
             return (SpotTypes)random.Next((int)SpotTypes.Factory, (int)SpotTypes.Storage + 1);
         }
 
-        public static T FirstOrDefault<T>(this Queue<T> queue)
+        private static Item Last=new ();
+        public static T FirstOrDefault<T>(this Queue<T> queue,string key)
         {
             if (queue.TryPeek(out T item))
+            {
+                try
+                {
+                    Item @new = item.Cast<Item>();
+                    if (@new.ModelImages != Last.ModelImages)
+                    {
+                        Last = @new;
+                        GameLogger.WriteOperations(key, (int)(item.Cast<Item>()?.ModelImages ?? 0));
+                    }
+                  
+                }
+                catch (Exception){}
+                finally
+                {
+                  //  GameLogger.WriteOperations();
+                }
                 return item;
+            }
             return default;
         }
     }

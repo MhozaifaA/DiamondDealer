@@ -106,6 +106,7 @@ else
     protected override Task OnInitializedAsync()
     {
         GameLogger.Log<Objects.ConsoleLog>($"{nameof(OnInitializedAsync)}");
+        GameLogger.Log<Objects.PetriLog>($"{GameLogger.GetOperations()}");
         return base.OnInitializedAsync();
     }
 
@@ -137,7 +138,7 @@ else
             GameLogger.Log<Objects.ConsoleLog>($"MyBorad.Focus {nameof(firstRender)}");
             //  await JSRuntime.InvokeVoidAsync("SetFocusToElement", myDiv);
         }
-     //   GameLogger.Log<Objects.ConsoleLog>($"{nameof(OnAfterRenderAsync)}");
+        //   GameLogger.Log<Objects.ConsoleLog>($"{nameof(OnAfterRenderAsync)}");
 
     }
 

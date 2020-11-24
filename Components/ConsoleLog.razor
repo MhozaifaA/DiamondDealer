@@ -1,7 +1,7 @@
 ﻿@using DiamondDealer.Objects
 <div class="text-center m-5">
     <h3>Console Logs @LogsFromInit</h3>
-    <div style="overflow-y: scroll; height:400px; ">
+    <div style="overflow-y: scroll; height:300px; ">
         <Virtualize Context="log" Items="@GameLogger.ConsoleLogs">
             <div class="alert alert-secondary">
                 @log.Message

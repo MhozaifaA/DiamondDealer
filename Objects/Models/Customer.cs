@@ -13,10 +13,12 @@ namespace DiamondDealer.Objects
 
         private readonly Timer timer;
         private Random random;
-
+        private readonly string Key;
 
         public Customer()
         {
+            Key = $"{nameof(Customer)}";
+
             random = new Random();
             Items = new Queue<Item>();
 
@@ -52,7 +54,7 @@ namespace DiamondDealer.Objects
             return false;
         }
 
-        public new Item Item => Items.FirstOrDefault();
+        public new Item Item => Items.FirstOrDefault(Key);
         public new string Image { get; init; }
         public new bool IsItem => Item is not null;
 

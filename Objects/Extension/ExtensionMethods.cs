@@ -232,6 +232,13 @@ namespace DiamondDealer.Objects
         {
             if (queue.TryPeek(out T item))
             {
+                Log(key, item);
+                return item;
+            }
+            return default;
+
+            static void Log<T>(string key, T item)
+            {
                 try
                 {
                     Item @new = item.Cast<Item>();
@@ -240,16 +247,14 @@ namespace DiamondDealer.Objects
                         Last = @new;
                         GameLogger.WriteOperations(key, (int)(item.Cast<Item>()?.ModelImages ?? 0));
                     }
-                  
+
                 }
-                catch (Exception){}
+                catch (Exception) { }
                 finally
                 {
-                  //  GameLogger.WriteOperations();
+                    //  GameLogger.WriteOperations();
                 }
-                return item;
             }
-            return default;
         }
     }
 }

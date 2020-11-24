@@ -123,7 +123,7 @@ namespace DiamondDealer.Objects
         {
             get => _Item;
             set { _Item = value;
-                GameLogger.WriteOperations(Key, (int)(_Item?.ModelImages ?? 0));}
+                GameLogger.WriteOperations(Key, ((int)(_Item?.ModelImages ?? 0)!=-1?((int)(_Item?.ModelImages ?? 0)) :((int)(_Item?.EqualPackage ?? 0)) ) );}
         }
 
 

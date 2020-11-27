@@ -22,8 +22,6 @@ namespace DiamondDealer.Objects
             random = new Random();
            // timer.AutoReset = false;
 
-
-
             switch (kind)
             {
                 case "Factory":
